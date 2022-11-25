@@ -5,14 +5,20 @@ from returns import add_return
 from moving_average import add_moving_average
 from exp_moving_average import add_exp_moving_average
 from volatility import add_volatility
+from price_adjustment import adjust_price
 
 
 def preprocess_prices(df):
+    # transform Date column into datetime
+    df.loc[: ,"Date"] = pd.to_datetime(df.loc[: ,"Date"], format="%Y-%m-%d")
+    # Adjust close price
+    df = adjust_price(df)
+    df.set_index("Date", inplace=True)
     for period in [5,10,30,60]:
-        add_return(df,"Close",period)
-        add_moving_average(df,"Close",period)
-        add_exp_moving_average(df,"Close",period)
-        add_volatility(df,"Close",period)
+        add_return(df,"AdjustedClose",period)
+        add_moving_average(df,"AdjustedClose",period)
+        add_exp_moving_average(df,"AdjustedClose",period)
+        add_volatility(df,"AdjustedClose",period)
     return df
 
 def main():
