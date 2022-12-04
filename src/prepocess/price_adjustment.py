@@ -39,6 +39,6 @@ def adjust_price(price):
 
     # generate AdjustedClose
     price = price.sort_values(["SecuritiesCode", "Date"])
-    price = price.groupby("SecuritiesCode").apply(generate_adjusted_close).reset_index(drop=True)
+    price = price.groupby("SecuritiesCode", group_keys=False).apply(generate_adjusted_close).reset_index(drop=True)
 
     return price
