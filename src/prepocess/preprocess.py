@@ -6,19 +6,23 @@ from moving_average import add_moving_average
 from exp_moving_average import add_exp_moving_average
 from volatility import add_volatility
 from price_adjustment import adjust_price
-
+from drawdown import add_drawdown
 
 def preprocess_prices(df):
     # transform Date column into datetime
     df.loc[: ,"Date"] = pd.to_datetime(df.loc[: ,"Date"], format="%Y-%m-%d")
     # Adjust close price
     df = adjust_price(df)
+    df.sort_values(by=['SecuritiesCode', 'Date'], ascending=[True, True], inplace=True)
     df.set_index("Date", inplace=True)
-    for period in [5,10,30,60]:
+    for period in [20, 40 ,60]:
         add_return(df,"AdjustedClose",period)
         add_moving_average(df,"AdjustedClose",period)
-        add_exp_moving_average(df,"AdjustedClose",period)
+        #add_exp_moving_average(df,"AdjustedClose",period)
         add_volatility(df,"AdjustedClose",period)
+    df = add_drawdown(df)
+    df=df.drop(columns=['RowId','ExpectedDividend','AdjustmentFactor','SupervisionFlag', 'Close', 'CumulativeAdjustmentFactor'],axis=1).fillna(0)
+    df.reset_index(inplace=True)
     return df
 
 def main():
@@ -26,12 +30,14 @@ def main():
     # preprocess train
     prices_train = pd.read_csv('../../data/train_files/stock_prices.csv')
     prices_train = preprocess_prices(prices_train)
-    prices_train.to_csv('../../data/preprocessed/stock_prices_train.csv', index=False)
+    prices_train.to_csv('../../data/preprocessed/stock_prices_train_20_40_60_wt_expma.csv',
+                        index=False)
 
     # preprocess test
     prices_test = pd.read_csv('../../data/supplemental_files/stock_prices.csv')
     prices_test = preprocess_prices(prices_test)
-    prices_test.to_csv('../../data/preprocessed/stock_prices_supplemental.csv', index=False)
+    prices_test.to_csv('../../data/preprocessed/stock_prices_supplemental_20_40_60_wt_expma.csv',
+                       index=False)
 
 if __name__ == '__main__':
     main()
