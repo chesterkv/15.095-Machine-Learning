@@ -17,7 +17,7 @@ from external_features import add_external_features
 
 def preprocess_prices(df):
     logging.debug("Converting dates")
-    df.loc[: ,"Date"] = pd.to_datetime(df.loc[: ,"Date"], format="%Y-%m-%d")
+    df["Date"] = pd.to_datetime(df.loc[: ,"Date"], format="%Y-%m-%d")
     # Adjust close price
     logging.debug("Calculating adjusted close price")
     df = adjust_price(df)
@@ -34,8 +34,9 @@ def preprocess_prices(df):
     df = add_drawdown(df)
     df=df.drop(columns=['RowId','ExpectedDividend','AdjustmentFactor','SupervisionFlag', 'Close', 'CumulativeAdjustmentFactor'],axis=1).fillna(0)
     df.reset_index(inplace=True)
-
-    df.merge(add_external_features(), on="SecuritiesCode", how="left")
+    logging.debug(f"Adding external features, inital shape : {df.shape}")
+    df = df.merge(add_external_features(), on="SecuritiesCode", how="left")
+    logging.debug(f"Final shape : {df.shape}")
 
     return df
 
