@@ -27,6 +27,8 @@ def preprocess_prices(df):
     for period in [5,10,30,60]:
         logging.debug(f"Calculating features for period {period} days")
         add_return(df,"AdjustedClose",period)
+        return_col = f"return_{period}days"
+        logging.debug(f"Average of return overs {period} days : {df[return_col].mean()}")
         add_moving_average(df,"AdjustedClose",period)
         #add_exp_moving_average(df,"AdjustedClose",period)
         add_volatility(df,"AdjustedClose",period)
