@@ -28,14 +28,17 @@ def preprocess_prices(df):
         logging.debug(f"Calculating features for period {period} days")
         add_return(df,"AdjustedClose",period)
         add_moving_average(df,"AdjustedClose",period)
-        #add_exp_moving_average(df,"AdjustedClose",period)
+        add_exp_moving_average(df,"AdjustedClose",period)
         add_volatility(df,"AdjustedClose",period)
 
     df = add_drawdown(df)
-    df=df.drop(columns=['RowId','ExpectedDividend','AdjustmentFactor','SupervisionFlag', 'Close', 'CumulativeAdjustmentFactor'],axis=1).fillna(0)
+    df = df.drop(columns=['RowId','ExpectedDividend','AdjustmentFactor','SupervisionFlag',
+                         'Close', 'CumulativeAdjustmentFactor'],axis=1).fillna(0)
     df.reset_index(inplace=True)
 
-    df.merge(add_external_features(), on="SecuritiesCode", how="left")
+    logging.debug(f"Adding external features, inital shape : {df.shape}")
+    df = df.merge(add_external_features(), on = "SecuritiesCode", how = "left")
+    logging.debug(f"Final shape : {df.shape}")
 
     return df
 
@@ -52,21 +55,22 @@ def main(args):
     
     # preprocess train
     logging.info("Loading train data")
-    prices_train = pd.read_csv('data/train_files/stock_prices.csv')
+    prices_train = pd.read_csv('../../data/train_files/stock_prices.csv')
     logging.info("Preprocessing train data")
     prices_train = preprocess_prices(prices_train)
     logging.info("Saving train data")
-    prices_train.to_csv('data/preprocessed/stock_prices_train.csv', index=False)
+    prices_train.to_csv('../../data/preprocessed/stock_prices_train_5_10_30_60.csv', index=False)
 
 
     # preprocess test
     logging.info("Loading test data")
-    prices_test = pd.read_csv('data/supplemental_files/stock_prices.csv')
+    prices_test = pd.read_csv('../../data/supplemental_files/stock_prices.csv')
     logging.info("Preprocessing test data")
     prices_test = preprocess_prices(prices_test)
 
     logging.info("Saving test data")
-    prices_test.to_csv('data/preprocessed/stock_prices_supplemental.csv', index=False)
+    prices_test.to_csv('../../data/preprocessed/stock_prices_supplemental_5_10_30_60.csv',
+                       index=False)
 
 
 if __name__ == '__main__':
