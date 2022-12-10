@@ -22,7 +22,7 @@ def add_external_features():
         'Banks':'Banks',
         'Electric power & gas':'Energy resources'
     }
-    stock_list = pd.read_csv("data/stock_list.csv")
+    stock_list = pd.read_csv("../../data/stock_list.csv")
     stock_list["Sector"] = [s.rstrip().lower().capitalize() for s in stock_list["17SectorName"]]
     stock_list["Sector"] = stock_list["Sector"].map(limit_sectors)
     stock_list["Capitalization"] = (stock_list["MarketCapitalization"] - stock_list["MarketCapitalization"].mean()) / stock_list["MarketCapitalization"].std()
